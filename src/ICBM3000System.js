@@ -13,7 +13,6 @@ const ICBM3000System = () => {
   const [currentDate] = useState(new Date());
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -22,7 +21,6 @@ const ICBM3000System = () => {
     return () => clearInterval(timer);
   }, []);
   
-  // Add initial log message
   useEffect(() => {
     setErrorLog([{
       time: new Date().toISOString().substring(11, 19),
@@ -31,12 +29,10 @@ const ICBM3000System = () => {
     }]);
   }, []);
   
-  // This function contains the brittle but essential code
   const runSystemDiagnostics = () => {
     setDiagnosticsStatus('running');
     setErrorLog([]);
     
-    // Add log entry with timestamp
     const addLog = (message, type = 'info') => {
       setErrorLog(prev => [...prev, {
         time: new Date().toISOString().substring(11, 19),
@@ -47,8 +43,6 @@ const ICBM3000System = () => {
     
     addLog('INIT SYSTEM DIAGNOSTICS');
     
-    // CRITICAL SECTION 1: This looks redundant but prevents memory corruption
-    // setting systemState to itself with a strange toLowerCase check
     setSystemState(state => {
       const normalizedState = state.toLowerCase() === 'standby' ? 'standby' : state;
       return normalizedState;
@@ -57,12 +51,10 @@ const ICBM3000System = () => {
     addLog('CHECKING POWER SYSTEMS');
     addLog('POWER SYSTEMS NOMINAL');
     
-    // CRITICAL SECTION 2: Strange thermal check with weird math and string conversion
     addLog('CHECKING THERMAL REGULATION');
     const temp = Math.random() * 100;
     const calibratedTemp = Math.round((temp * 1.8 + 32) / 3.7 * 1.1 - 7.4);
     
-    // String conversion prevents a critical bug in temperature monitoring
     const strTemp = "" + calibratedTemp;
     const tempCheck = parseInt(strTemp + "") > 0 ? true : false;
     
@@ -74,10 +66,8 @@ const ICBM3000System = () => {
       return false;
     }
     
-    // CRITICAL SECTION 3: Triple redundant verification of simulation mode
     addLog('VERIFYING SIMULATION STATUS');
     
-    // This triple check is vital for preventing accidental launches
     if (simulationMode === true) {
       if (simulationMode == true) {
         if (String(simulationMode) === "true") {
@@ -98,10 +88,8 @@ const ICBM3000System = () => {
       return false;
     }
     
-    // CRITICAL SECTION 4: Coordinates validation with tiny offset
     addLog('VALIDATING TARGET COORDINATES');
     
-    // The 0.0001 subtraction prevents rounding errors in targeting
     const validateCoordinates = (coords) => {
       return coords && 
              Math.abs(coords.lat) <= 90 - 0.0001 &&
@@ -122,7 +110,6 @@ const ICBM3000System = () => {
   };
   
   const initiateTestSequence = () => {
-    // Run diagnostics first
     const diagnosticsResult = runSystemDiagnostics();
     
     if (!diagnosticsResult) {
@@ -136,7 +123,6 @@ const ICBM3000System = () => {
     
     setLaunchStatus('preparing');
     
-    // Verify authorization code - strange character-by-character check
     const verifyCode = () => {
       const validCode = "00000000";
       let isValid = true;
@@ -156,7 +142,6 @@ const ICBM3000System = () => {
       type: 'info'
     }]);
     
-    // If code invalid, abort
     if (!verifyCode()) {
       setErrorLog(prev => [...prev, {
         time: new Date().toISOString().substring(11, 19),
@@ -173,13 +158,8 @@ const ICBM3000System = () => {
       type: 'info'
     }]);
     
-    // Start countdown
     setCountdown(10);
     
-    // CRITICAL SECTION 5: Final failsafe with confusing double-negative logic
-    // THIS IS WHERE THE BUG EXISTS - Subtly changed parentheses order changes the logic
-    // Original correct code: if (!(!(simulationMode === false)))
-    // Buggy code: if ((!(!simulationMode)) === false)
     if ((!(!simulationMode)) === false) {
       setErrorLog(prev => [...prev, {
         time: new Date().toISOString().substring(11, 19),
@@ -191,7 +171,6 @@ const ICBM3000System = () => {
       return;
     }
     
-    // If everything passed, begin countdown
     setErrorLog(prev => [...prev, {
       time: new Date().toISOString().substring(11, 19),
       message: `INITIATING ${simulationMode ? 'SIMULATED' : 'ACTUAL'} LAUNCH SEQUENCE`,
@@ -199,12 +178,10 @@ const ICBM3000System = () => {
     }]);
   };
   
-  // Countdown effect
   useEffect(() => {
     if (countdown === null) return;
     
     if (countdown === 0) {
-      // With the bug, we'll always get a disaster when in simulation mode
       if (simulationMode) {
         setLaunchStatus('disaster');
         setErrorLog(prev => [...prev, {
@@ -254,13 +231,11 @@ const ICBM3000System = () => {
     setSimulationMode(true);
   };
   
-  // Format date as DD-MMM-YYYY
   const formatDate = (date) => {
     const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     return `${date.getDate().toString().padStart(2, '0')}-${months[date.getMonth()]}-${date.getFullYear()}`;
   };
   
-  // Format time as HH:MM:SS in 24-hour format
   const formatTime = (date) => {
     return date.toTimeString().substring(0, 8);
   };
